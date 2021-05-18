@@ -1,25 +1,55 @@
-import logo from './logo.svg';
-import './App.css';
+import "./style.css";
+import React from "react";
+import UserCard from "./UserCard"
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      error: null,
+      isLoaded: false,
+      items: []
+    };
+  }
+
+  componentDidMount() {
+    fetch("https://randomuser.me/api/?results=8")
+        .then(res => res.json())
+        .then(
+            (result) => {
+              this.setState({
+                isLoaded: true,
+                items: result.results
+              });
+            }
+        )
+        .catch(
+            (error) => {
+              this.setState({
+                isLoaded: true,
+                error
+              });
+            }
+        )
+  }
+
+  render() {
+    const items = this.state.items;
+    const { error, isLoaded } = this.state;
+    if (error) return (<div>Error: {error.message}</div>);
+    if (!isLoaded) return <div>Loading...</div>;
+    return (
+        <div className={"list"}>
+          {
+            items.map((item, index) => (
+                <UserCard key={index}
+                          userName={`${item.name.first ? item.name.first : ""} ${item.name.last}`}
+                          imgUrl={item.picture.medium}
+                />
+            ))}
+        </div>
+    )
+  }
 }
 
 export default App;
